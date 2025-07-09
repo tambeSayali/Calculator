@@ -1,48 +1,56 @@
 pipeline {
     agent any
 
+    tools {
+        // Use Maven and JDK with configured names in Jenkins
+        maven 'M3'
+        jdk 'JDK 11'
+    }
+
     environment {
-        // Define any environment variables here
-        // Example: JAVA_HOME = '/usr/lib/jvm/java-11-openjdk'
+        // Define SonarQube environment (ensure this matches your Jenkins SonarQube config name)
+        SONARQUBE = 'SonarQubeServer'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout code from GitHub
-                checkout scm
+                // Use Jenkins credentials and your repo URL (replace with real username/repo if needed)
+                git credentialsId: 'github-pat', url: 'https://github.com/tambeSayali/Calculator.git'
             }
         }
+
+        stage('SonarQube Analysis') {
+            steps {
+                // Run SonarQube analysis with environment configured above
+                withSonarQubeEnv("${env.SONARQUBE}") {
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+
         stage('Build') {
             steps {
-                // Replace with your build command
-                sh 'echo "No build step defined. Add your build commands here."'
+                sh 'mvn clean package'
             }
         }
+
         stage('Test') {
             steps {
-                // Replace with your test command
-                sh 'echo "No test step defined. Add your test commands here."'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                // Replace with your deploy command if needed
-                sh 'echo "No deploy step defined. Add your deployment commands here."'
+                sh 'mvn test'
             }
         }
     }
 
     post {
         always {
-            // Actions to run after every build, like cleanup or notifications
-            echo 'Pipeline finished.'
-        }
-        success {
-            echo 'Build succeeded!'
+            // Publish JUnit test results
+            junit '**/target/surefire-reports/*.xml'
+            // Optionally archive the JAR artifact
+            archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
         }
         failure {
-            echo 'Build failed.'
+            echo 'Build failed!'
         }
     }
 }
