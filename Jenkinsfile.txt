@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    environment {
+        // Define any environment variables here
+        // Example: JAVA_HOME = '/usr/lib/jvm/java-11-openjdk'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout code from GitHub
+                checkout scm
+            }
+        }
+        stage('Build') {
+            steps {
+                // Replace with your build command
+                sh 'echo "No build step defined. Add your build commands here."'
+            }
+        }
+        stage('Test') {
+            steps {
+                // Replace with your test command
+                sh 'echo "No test step defined. Add your test commands here."'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // Replace with your deploy command if needed
+                sh 'echo "No deploy step defined. Add your deployment commands here."'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Actions to run after every build, like cleanup or notifications
+            echo 'Pipeline finished.'
+        }
+        success {
+            echo 'Build succeeded!'
+        }
+        failure {
+            echo 'Build failed.'
+        }
+    }
+}
